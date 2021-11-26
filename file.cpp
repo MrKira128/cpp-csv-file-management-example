@@ -256,10 +256,10 @@ int main(int argc, char *argv[])
     while (true)
     {
         // print menu to create, read, update, delete, and exit
-        cout << "1: Create" << endl;
-        cout << "2: Read" << endl;
-        cout << "3: Update" << endl;
-        cout << "4: Delete" << endl;
+        cout << "1: Add student" << endl;
+        cout << "2: Find student" << endl;
+        cout << "3: Update student" << endl;
+        cout << "4: Delete student" << endl;
         cout << "0: Exit" << endl;
         cout << "Enter your choice: ";
         int choice;
