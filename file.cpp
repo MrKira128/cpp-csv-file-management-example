@@ -4,7 +4,7 @@
 #include <sstream>
 #define DATA_FILE "data.csv"
 using namespace std;
-// Student create();
+
 struct Course
 {
     // int id;
@@ -17,8 +17,6 @@ class Student
 // struct Student
 {
     private:
-    // static fstream DataFile;
-    
     int id = -1;
     string fname;
     string lname;
@@ -31,14 +29,8 @@ class Student
     Course courses[6];
 
     public:
-    Student()
-    {
-        
-    }
-    ~Student()
-    {
-        
-    }
+    Student(){}
+    ~Student(){}
     void getDataFromUser(){
         // get data from the user
         cout << "Enter student id: ";
@@ -68,26 +60,8 @@ class Student
     }
     void print()
     {
-        if(id == -1)
-        {
-            cout << "No student data to print" << endl;
-            return;
-        }
-        cout << "Student id: " << id << endl;
-        cout << "Student first name: " << fname << endl;
-        cout << "Student last name: " << lname << endl;
-        cout << "Student age: " << age << endl;
-        cout << "Student gpa: " << gpa << endl;
-        cout << "Student address: " << address << endl;
-        cout << "Student phone: " << phone << endl;
-        cout << "Student email: " << email << endl;
-        cout << "Student major: " << major << endl;
-        for (int i = 0; i < 6; i++)
-        {
-            cout << "Course name ("<<i+1<<"): " << courses[i].name << endl;
-        }
+        cout << studentToString(*this);
     }
-
     void writeToFileAsCSV(fstream& outFile)
     {
         outFile << studentToStringstream(*this).str() << endl;
@@ -100,25 +74,105 @@ class Student
         {
             stringstream ss(line);
             *this=stringstreamToStudent(ss);
-            
-            if (this->id == id)
-            {
-                found = true;
-                break;
-            }
+            if (this->id == id)break;
         }
-        if (found)
-        {
-            cout << "Student found!" << endl;
-            // print();
-        }
-        else
+        if (!found)
         {
             this->id = -1;
             cout << "Student not found!" << endl;
         }
+    }
+    void removeFromCSVByID(fstream& File, int id){
+        // create a temp file to store the output file
+        fstream tempFile;
+        tempFile.open("temp.csv", ios::out);
+        // read from the file and write to the temp file
+        string line;
+        while (getline(File, line))
+        {
+            stringstream ss(line);
+            Student s = stringstreamToStudent(ss);
+            if(s.id != id){
+                s.writeToFileAsCSV(tempFile);
+            }
+        }
+        // close the file
+        File.close();
+        // close the temp file
+        tempFile.close();
+        // delete the original file
+        remove(DATA_FILE);
+        // rename the temp file to the original file
+        rename("temp.csv", DATA_FILE);
 
+        // if (found)
+        // {
+        //     cout << "Student found!" << endl;
+        //     // print();
+        // }
+        // else
+        // {
+        //     this->id = -1;
+        //     cout << "Student not found!" << endl;
+        // }
+    }
+    void updateCSVByID(fstream& File, int id){
+        readFromFileAsCSVByID(File, id);
+        cout<< "Old student info:-" << endl;
+        print();
+        removeFromCSVByID(File, id);
+        cout<< "Enter new student info:-" << endl;
+        getDataFromUser();
+        print();
+        // File.append(studentToStringstream(*this).str());
+        File.open(DATA_FILE, ios::app);
+        writeToFileAsCSV(File);
+    
+    }
+    void updateCSVByIDOld(fstream& File, int id){
+        // create a temp file to store the output file
+        fstream tempFile;
+        tempFile.open("temp.csv", ios::out);
+        // read from the file and write to the temp file
+        string line;
+        while (getline(File, line))
+        {
+            stringstream ss(line);
+            Student s = stringstreamToStudent(ss);
+            if(s.id == !id){
+                s.writeToFileAsCSV(tempFile);
+            }else{
+                cout<<"test";
+            }
+            
+        }
+        readFromFileAsCSVByID(File, id);
+        cout << "Old student info: " << endl;
+        print();
 
+        cout << "Enter the new information: " << endl;
+        Student newStudent;
+        newStudent.getDataFromUser();
+        // newStudent.writeToFileAsCSV(tempFile);
+        
+
+        // close the file
+        File.close();
+        // close the temp file
+        tempFile.close();
+        // delete the original file
+        remove(DATA_FILE);
+        // rename the temp file to the original file
+        rename("temp.csv", DATA_FILE);
+    }
+    stringstream studentToStringstream(Student s){
+        stringstream ss;
+        ss << s.id << "," << s.fname << "," << s.lname << "," << s.age << "," << s.gpa << "," << s.address << "," << s.phone << "," << s.email << "," << s.major << ",";
+        for (int i = 0; i < 6; i++)
+        {
+            ss << s.courses[i].name << ",";
+        }
+        return ss;
     }
     Student stringstreamToStudent(stringstream& ss)
     {
@@ -171,132 +225,40 @@ class Student
         }
         return s;
     }
-
-
-    void removeFromCSVByID(fstream& File, int id){
-        // create a temp file to store the output file
-        fstream tempFile;
-        tempFile.open("temp.csv", ios::out);
-        // read from the file and write to the temp file
-        string line;
-        while (getline(File, line))
-        {
-            stringstream ss(line);
-            Student s = stringstreamToStudent(ss);
-            if(s.id != id){
-                s.writeToFileAsCSV(tempFile);
-            }
-        }
-        // close the file
-        File.close();
-        // close the temp file
-        tempFile.close();
-        // delete the original file
-        remove(DATA_FILE);
-        // rename the temp file to the original file
-        rename("temp.csv", DATA_FILE);
-
-        // if (found)
-        // {
-        //     cout << "Student found!" << endl;
-        //     // print();
-        // }
-        // else
-        // {
-        //     this->id = -1;
-        //     cout << "Student not found!" << endl;
-        // }
-    }
-
-    void updateCSVByID(fstream& File, int id){
-        readFromFileAsCSVByID(File, id);
-        cout<< "Old student info:-" << endl;
-        print();
-        removeFromCSVByID(File, id);
-        cout<< "Enter new student info:-" << endl;
-        getDataFromUser();
-        writeToFileAsCSV(File);
-    
-    }
-    void updateCSVByIDOld(fstream& File, int id){
-        
-
-
-        // create a temp file to store the output file
-        fstream tempFile;
-        tempFile.open("temp.csv", ios::out);
-        // read from the file and write to the temp file
-        string line;
-        while (getline(File, line))
-        {
-            stringstream ss(line);
-            Student s = stringstreamToStudent(ss);
-            if(s.id == !id){
-                s.writeToFileAsCSV(tempFile);
-            }else{
-                cout<<"test";
-            }
-            
-        }
-        readFromFileAsCSVByID(File, id);
-        cout << "Old student info: " << endl;
-        print();
-
-        cout << "Enter the new information: " << endl;
-        Student newStudent;
-        newStudent.getDataFromUser();
-        newStudent.writeToFileAsCSV(tempFile);
-
-        // close the file
-        File.close();
-        // close the temp file
-        tempFile.close();
-        // delete the original file
-        remove(DATA_FILE);
-        // rename the temp file to the original file
-        rename("temp.csv", DATA_FILE);
-    }
-    stringstream studentToStringstream(Student s){
+    string studentToString(Student s)
+    {
         stringstream ss;
-        ss << s.id << "," << s.fname << "," << s.lname << "," << s.age << "," << s.gpa << "," << s.address << "," << s.phone << "," << s.email << "," << s.major << ",";
+        if(id == -1)
+        {
+            ss << "No student data to print" << endl;
+            return;
+        }
+        ss << "Student id: " << id << endl;
+        ss << "Student first name: " << fname << endl;
+        ss << "Student last name: " << lname << endl;
+        ss << "Student age: " << age << endl;
+        ss << "Student gpa: " << gpa << endl;
+        ss << "Student address: " << address << endl;
+        ss << "Student phone: " << phone << endl;
+        ss << "Student email: " << email << endl;
+        ss << "Student major: " << major << endl;
         for (int i = 0; i < 6; i++)
         {
-            ss << s.courses[i].name << ",";
+            ss << "Course name ("<<i+1<<"): " << courses[i].name << endl;
         }
-        return ss;
+        
+        return ss.str();
     }
-    
-
-
-
 };
-
-// class DataBase
-// {
-// private:
-//     /* data */
-// public:
-//     DataBase(/* args */);
-//     ~DataBase();
-// };
-
-// DataBase::DataBase(/* args */)
-// {
-// }
-
-// DataBase::~DataBase()
-// {
-// }
 
 int main(int argc, char *argv[])
 {
     while (true)
     {
-        
         // print menu to create, read, update, delete, and exit
         cout << "1: Create" << endl;
         cout << "2: Read" << endl;
-        // cout << "3: Update" << endl;
+        cout << "3: Update" << endl;
         cout << "4: Delete" << endl;
         cout << "0: Exit" << endl;
         cout << "Enter your choice: ";
@@ -313,8 +275,8 @@ int main(int argc, char *argv[])
             Student student;
             student.getDataFromUser();
             student.writeToFileAsCSV(fdata);
-            // student.readFromFileAsCSVByID(fdata, 12345);
-            // student.print();
+
+            fdata.close();
 
         }
         else if(choice == 2)
@@ -328,24 +290,29 @@ int main(int argc, char *argv[])
             cin >> id;
             student.readFromFileAsCSVByID(fdata, id);
             student.print();
-
-
-
+            fdata.close();
         }
         else if(choice == 3)
         {
-            cout << "Sorry, this feature is not available yet." << endl;
-            // // update
-            // fstream fdata;
-            // fdata.open(DATA_FILE, ios::in | ios::out);
+            // remove a student
+            fstream fdata;
+            fdata.open(DATA_FILE, ios::in);
+            Student student;
+            int id;
+            cout << "Enter student id to update: ";
+            cin >> id;
+            student.removeFromCSVByID(fdata, id);
+
+            // add new student
+            fdata.open(DATA_FILE, ios::out | ios::app);
+
             // Student student;
-            // int id;
-            // cout << "Enter student id: ";
-            // cin >> id;
-            // student.updateCSVByID(fdata, id);
-            // student.print();
+            cout << "Enter new student info: " << endl;
+            student.getDataFromUser();
+            student.writeToFileAsCSV(fdata);
 
-
+            fdata.close();
+            
         }
         else if(choice == 4)
         {
@@ -357,6 +324,7 @@ int main(int argc, char *argv[])
             cout << "Enter student id to delete: ";
             cin >> id;
             student.removeFromCSVByID(fdata, id);
+            // fdata.close();
         }
         else if(choice == 0) exit(0);
         else cout << "Invalid choice" << endl;
@@ -364,4 +332,3 @@ int main(int argc, char *argv[])
 
     return 0;
 }
-
